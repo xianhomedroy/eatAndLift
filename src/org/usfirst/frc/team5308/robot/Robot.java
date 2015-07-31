@@ -78,8 +78,8 @@ public class Robot extends IterativeRobot {
 		com1 = new Compressor(0);
 		com1.setClosedLoopControl(true);
 
-		dirL = new Talon(4);
-		dirR = new Talon(5);
+		dirL = new Talon(6);
+		dirR = new Talon(7);
 
 		// limswitchL = new DigitalInput(0);
 		// limswitchR = new DigitalInput(1);
@@ -147,29 +147,45 @@ public class Robot extends IterativeRobot {
 		updateButtons();
 
 		// 3 Solenoids
+		if (allButton[2].press == buttonPress.activate
+				|| allButton[2].press == buttonPress.deactivate)
+			runSole(lift);
 		if (allButton[1].press == buttonPress.activate
 				|| allButton[1].press == buttonPress.deactivate)
-			runSole(lift);
+			runSole(grab);
 		if (allButton[7].press == buttonPress.activate
 				|| allButton[7].press == buttonPress.deactivate)
-			runSole(grab);
-		if (allButton[8].press == buttonPress.activate
-				|| allButton[8].press == buttonPress.deactivate)
 			runSole(hook);
 
 		// Talon
-		if (allButton[2].press == buttonPress.activate) {
+		if (allButton[1].press == buttonPress.activate) {
 			dirL.set(0.8);
 			dirR.set(0.8);
 			// RunSafety(dirR,0.8,2);
 			// RunSafety(dirL,0.8,2);
 		}
-		if (allButton[2].press == buttonPress.deactivate) {
+		if (allButton[1].press == buttonPress.deactivate) {
 			dirL.set(0);
 			dirR.set(0);
 			// RunSafety(dirR,0.8,2);
 			// RunSafety(dirL,0.8,2);
 		}
+
+		if (allButton[3].press == buttonPress.activate)
+			dirL.set(0.8);
+		if (allButton[4].press == buttonPress.activate)
+			dirR.set(0.8);
+		if (allButton[5].press == buttonPress.activate)
+			dirL.set(-0.8);
+		if (allButton[6].press == buttonPress.activate)
+			dirR.set(-0.8);
+
+		if (allButton[3].press == buttonPress.deactivate
+				|| allButton[5].press == buttonPress.deactivate)
+			dirL.set(0);
+		if (allButton[4].press == buttonPress.deactivate
+				|| allButton[6].press == buttonPress.deactivate)
+			dirR.set(0);
 
 		/*
 		 * switch(press) { case 1 ://tractor push out RunSafety(sole0,1); break;
