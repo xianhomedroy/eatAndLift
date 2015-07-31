@@ -1,4 +1,3 @@
-//MAIN SOURCE CODE!!!!!!!!!!!!!!!!!!!!!!
 package org.usfirst.frc.team5308.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
