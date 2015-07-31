@@ -1,5 +1,4 @@
 //MAIN SOURCE CODE!!!!!!!!!!!!!!!!!!!!!!
-//12312321
 package org.usfirst.frc.team5308.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -8,15 +7,14 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.*;
-/**
- * The VM is configured to automatically run this class, and to call the
- * functions corresponding to each mode, as described in the IterativeRobot
- * documentation. If you change the name of this class or the package after
- * creating this project, you must also update the manifest file in the resource
- * directory.
- */
+
 public class Robot extends IterativeRobot
 {
+	
+	final int MaxButtonNum = 20; //defining the max num of the buttons on the stick
+	buttonStatus[] allButton = new buttonStatus[MaxButtonNum]; //储存所有按钮状态
+	
+	
     RobotDrive myRobot;
     Joystick stick;
     int autoLoopCounter;
@@ -33,6 +31,39 @@ public class Robot extends IterativeRobot
     //boolean lastLimSwitchL, lastLimSwitchR;
     boolean[] arr;
     int press;
+    
+    public void updateButtons() //更新所有按钮的状态
+	{
+		for(int i = 1;i <= MaxButtonNum;++i)
+		{
+			boolean raw = stick.getRawButton(i); //好像吧 没装WPILIB
+			buttonStatus now = allButton[i];//正在处理的
+			if(raw) // 如果按钮第一次被按下
+			{
+				if(now.press == buttonPress.activate)// 如果按钮第二次被按下
+				{
+					now.press = buttonPress.on;
+				}
+				else if(now.press != buttonPress.on) //同时也不等于activate
+				{
+					now.reverse();
+					now.press = buttonPress.activate;
+				}
+				//off/deactivate(松开) -> activate(第一次按下) -> on(持久按下)
+			}
+			else // raw == false
+			{
+				if(now.press == buttonPress.deactivate)
+					now.press = buttonPress.off;
+				else if(now.press != buttonPress.off) //同时也不等于deactivate
+					now.press = buttonPress.deactivate;
+				//activate/on(被按下) -> deactivate(第一次松开) -> off(持久松开)
+			}
+			allButton[i] = now;
+		}
+	}
+    
+    
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -124,15 +155,42 @@ public class Robot extends IterativeRobot
             System.out.println("Limit switch R " + (lastLimSwitchR ? "engaged." : "disengaged."));
         }*/
         //Button
-        for(int i = 1; i <= stick.getButtonCount(); ++i)
+        updateButtons();
+        if(allButton[1].press == buttonPress.activate || allButton[1].press == buttonPress.deactivate)
+        	runSole(sole0);
+        
+        if(allButton[2].press == buttonPress.activate)
         {
-            if(stick.getRawButton(i))
-            {
-                press = i;
-                break;
-            }
+        	dirL.set(0.8);
+        	dirR.set(0.8);
+        	//RunSafety(dirR,0.8,2);
+        	//RunSafety(dirL,0.8,2);
         }
-        switch(press)
+        if(allButton[2].press == buttonPress.deactivate)
+        {
+        	dirL.set(0);
+        	dirR.set(0);
+        	//RunSafety(dirR,0.8,2);
+        	//RunSafety(dirL,0.8,2);
+        }
+        
+        if(allButton[7].press == buttonPress.activate || allButton[7].press == buttonPress.deactivate)
+        {
+        	runSole(sole1);
+        }
+        if(allButton[8].press == buttonPress.activate)
+        {
+        	actuator1.set(1.0);
+        	actuator2.set(1.0);
+        	//RunSafety(actuator1,1.0,3);
+        	//RunSafety(actuator2,1.0,3);
+        }
+        if(allButton[8].press == buttonPress.deactivate)
+        {
+        	actuator1.set(0.0);
+        	actuator2.set(0.0);
+        }
+        /*switch(press)
         {
         case 1 ://tractor push out
         	RunSafety(sole0,1);
@@ -150,9 +208,10 @@ public class Robot extends IterativeRobot
         case -1 :
             break;
         default:
-            System.out.println("Button " + press + " engaged.");
-        };
+        	
+        };*/
     }
+    
     /**
      * This function is called periodically during test mode
      */
@@ -174,14 +233,8 @@ public class Robot extends IterativeRobot
     		T.set(0);
     	}
     }
-    public void RunSafety(Solenoid S,int index)
+    public void runSole(Solenoid S)
     {
-    	if(!arr[index-1])
-    	{
-    		sole1.set(sole1.get()?false:true);
-    	}
-    	else
-    		if(arr[index-1]&&press!=index)
-    			arr[index-1] = false;
+    	sole1.set(sole1.get()?false:true);
     }
 }
